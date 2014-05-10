@@ -3,18 +3,44 @@
 import os
 import shutil
 import argh
-from sys import argv
+import sys
 from glob import glob
+
+
+def get_column_output(s, ncols=10):
+    """Format input list of strings into ncols columns."""
+
+    s = [ s[i:i+ncols] for i in range(0, len(s), ncols) ]
+    col_width = 2 + max(len(word) for row in s for word in row)
+
+    s_formatted = "" 
+    for row in s:
+        s_formatted += "".join(word.ljust(col_width) for word in row) + "\n"
+
+    return s_formatted 
+
 
 
 @argh.arg_hack()
 def remove_except(force=False,
                   recursive=False, *args):
-    """Delete all files/directories except the ones specified in *args."""
+    """Delete all files/directories except the ones specified in *args.
+
+        Parameters:
+        -----------
+            force: bool
+                Remove files without asking if set True.
+            recursive: bool
+                Whether to recursively remove eventual directories.
+    """
+
+    # if no arguments are supplied, exit
+    if not args:
+        sys.exit("Error: no arguments supplied. Aborting.")
 
     # add calling script to files which should be left untouched
     args = list(args)
-    args.append(argv[0])
+    args.append(sys.argv[0])
 
     del_list = []
     
@@ -24,16 +50,12 @@ def remove_except(force=False,
             del_list.append(file)
         del_list.sort()
 
-    # output in columns 
-    del_list = [ del_list[i:i+3] for i in range(0,len(del_list),3) ]
-    col_width = 2 + max(len(word) for row in del_list for word in row)
-    for row in del_list:
-        print "".join(word.ljust(col_width) for word in row)
-
+    # output in ncols columns 
+    print get_column_output(del_list) 
     print
     print "Remove all files except"
-    for i in args:
-        print i
+    print
+    print get_column_output(args)
     print
     print "?"
     print
