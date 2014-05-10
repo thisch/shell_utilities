@@ -5,33 +5,53 @@ import shutil
 from sys import argv
 from glob import glob
 
+import argh
 
-del_list = []
+@argh.arg_hack()
+@argh.arg('args', nargs='*')
+#def remove_except(*args,
+def remove_except(force=False,
+                  recursive=False, *args):
+    """Delete all files/directories except the ones specified in *args."""
 
-for file in glob("*"):
-	#if file not in argv and file not in script:
-	if file not in argv[1:]:
-		del_list.append(file)
-del_list.sort()
+    SCRIPT = argv[0]
+    print args
+    args.append(SCRIPT)
+    del_list = []
+    
+    for file in glob("*"):
+        #if file not in argv and file not in script:
+        if file not in args:
+            del_list.append(file)
+        del_list.sort()
 
-# output in columns 
-del_list = [ del_list[i:i+3] for i in range(0,len(del_list),3) ]
-col_width = 2 + max(len(word) for row in del_list for word in row)
-for row in del_list:
-	print "".join(word.ljust(col_width) for word in row)
+    # output in columns 
+    del_list = [ del_list[i:i+3] for i in range(0,len(del_list),3) ]
+    col_width = 2 + max(len(word) for row in del_list for word in row)
+    for row in del_list:
+        print "".join(word.ljust(col_width) for word in row)
 
-print
-print "Remove all files except"
-for i in argv[1:]:
-	print i
-print
-print "?"
-print
+    print
+    print "Remove all files except"
+    for i in args:
+        print i
+    print
+    print "?"
+    print
 
-# deletion confirmation
-input = raw_input("Press (Y/y) to delete files:\n")
-print "------------------------"
-if input == 'Y' or input == 'y':
-	for i in del_list:
-		print "delete", i
-		
+    # deletion confirmation
+    if not force:
+        input = raw_input("Press (Y/y) to delete files:\n")
+        print "------------------------"
+    else:
+        input = 'Y'
+
+    if input in ('Yes', 'Y', 'yes', 'y'):
+        # delete
+        for i in del_list:
+            print "delete", i
+
+
+if __name__ == '__main__':
+    argh.dispatch_command(remove_except)
+
