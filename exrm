@@ -1,0 +1,34 @@
+#!/bin/bash
+
+ARG="$1" 
+if [ "$ARG" = "" ]; then
+	echo "Arguments missing"
+	exit
+fi
+
+x="|" 
+shift
+while [ $# -gt 0 ] ;do
+ ARG=$ARG$x$1
+ shift;
+done
+
+echo; ls
+echo
+echo "Deleting all files except"
+echo
+echo "$ARG" 
+echo
+echo "Input: yes/no"
+echo
+
+read INPUT
+#INPUT="yes"
+
+shopt -s extglob
+
+if [ "$INPUT" = "yes" ]; then
+rm !($ARG)
+else
+exit
+fi
