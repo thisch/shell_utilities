@@ -2,10 +2,10 @@
 
 import os
 import shutil
+import argh
 from sys import argv
 from glob import glob
 
-import argh
 
 @argh.arg_hack()
 def remove_except(force=False,
@@ -47,6 +47,12 @@ def remove_except(force=False,
     if input in ('Yes', 'Y', 'yes', 'y'):
         for i in del_list:
             print "delete", i
+            try:
+                pass
+                # os.remove(i)
+            except OSError:
+                pass
+                # shutil.rmtree(i) 
 
 
 if __name__ == '__main__':
