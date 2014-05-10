@@ -8,15 +8,14 @@ from glob import glob
 import argh
 
 @argh.arg_hack()
-@argh.arg('args', nargs='*')
-#def remove_except(*args,
 def remove_except(force=False,
                   recursive=False, *args):
     """Delete all files/directories except the ones specified in *args."""
 
-    SCRIPT = argv[0]
-    print args
-    args.append(SCRIPT)
+    # add calling script to files which should be left untouched
+    args = list(args)
+    args.append(argv[0])
+
     del_list = []
     
     for file in glob("*"):
@@ -42,12 +41,10 @@ def remove_except(force=False,
     # deletion confirmation
     if not force:
         input = raw_input("Press (Y/y) to delete files:\n")
-        print "------------------------"
     else:
         input = 'Y'
 
     if input in ('Yes', 'Y', 'yes', 'y'):
-        # delete
         for i in del_list:
             print "delete", i
 
