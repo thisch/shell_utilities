@@ -20,7 +20,6 @@ def get_column_output(s, ncols=10):
     return s_formatted 
 
 
-
 @argh.arg_hack()
 def remove_except(force=False,
                   recursive=False, *args):
@@ -60,15 +59,15 @@ def remove_except(force=False,
     print "?"
     print
 
-    # deletion confirmation
+    # get removal confirmation
     if not force:
-        input = raw_input("Press (Y/y) to delete files:\n")
+        input = raw_input("Press (Yes | Y | yes | y) to delete files:\n")
     else:
         input = 'Y'
 
     if input in ('Yes', 'Y', 'yes', 'y'):
         for i in del_list:
-            print "delete", i
+            print "deleting", i
             try:
                 pass
                 # os.remove(i)
