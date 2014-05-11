@@ -33,9 +33,9 @@ def remove_except(force=False,
                 Whether to recursively remove eventual directories.
     """
 
-    # if no arguments are supplied, exit
+    # exit if no arguments are supplied
     if not args:
-        sys.exit("Error: no arguments supplied. Aborting.")
+        sys.exit("Error: no arguments supplied")
 
     # add calling script to files which should be left untouched
     args = list(args)
