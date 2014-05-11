@@ -41,15 +41,15 @@ def remove_except(force=False,
     args = list(args)
     args.append(sys.argv[0])
 
+    # fill list of files to be deleted
     del_list = []
     
     for file in glob("*"):
-        #if file not in argv and file not in script:
         if file not in args:
             del_list.append(file)
         del_list.sort()
 
-    # output in ncols columns 
+    # output in columns 
     print get_column_output(del_list) 
     print
     print "Remove all files except"
