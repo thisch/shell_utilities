@@ -43,7 +43,7 @@ def remove_except(force=False,
 
     del_list = []
     
-    for file in glob("*"):
+    for file in glob("./*"):
         #if file not in argv and file not in script:
         if file not in args:
             del_list.append(file)
