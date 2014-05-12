@@ -39,7 +39,9 @@ def remove_except(force=False,
 
     # add calling script to files which should be left untouched
     args = list(args)
-    args.append(sys.argv[0])
+    script = sys.argv[0]
+    script = os.path.basename(script)
+    args.append(script)
 
     # fill list of files to be deleted
     del_list = []
@@ -64,6 +66,8 @@ def remove_except(force=False,
         input = raw_input("Press (Yes | Y | yes | y) to delete files:\n")
     else:
         input = 'Y'
+
+    print
 
     if input in ('Yes', 'Y', 'yes', 'y'):
         for i in del_list:
