@@ -16,7 +16,7 @@ def get_column_output(s, ncols=10):
 
     s_formatted = "" 
     for row in s:
-        s_formatted += "".join(word.ljust(col_width) for word in row) + "\n"
+        s_formatted += "\t" + "".join(word.ljust(col_width) for word in row) + "\n"
 
     return s_formatted 
 
@@ -55,13 +55,13 @@ def remove_except(force=False,
             del_list.append(file)
 
     # output in columns 
-    print "\t Current directory listing:"
+    print "Current directory listing:"
     print
     print get_column_output(all_files) 
-    print "\t Remove all files except"
+    print "Remove all files except"
     print
     print get_column_output(args)
-    print "\t ?"
+    print "?"
     print
 
     # get removal confirmation
@@ -79,8 +79,13 @@ def remove_except(force=False,
             except OSError:
                 if recursive:
                     shutil.rmtree(i) 
-            if verbose:
-                print "deleting", basename(i)
+                    if verbose:
+                        print "deleting", basename(i)
+            else:
+                if verbose:
+                    print "deleting", basename(i)
+    else:
+        print "Aborting removal. \n"
 
 
 if __name__ == '__main__':
