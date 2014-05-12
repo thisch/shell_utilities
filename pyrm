@@ -72,11 +72,11 @@ def remove_except(force=False,
                 pass
                 # os.remove(i)
             except OSError:
-				if recursive:
-                	pass
-                	# shutil.rmtree(i) 
+                if recursive:
+                    pass
+                    #shutil.rmtree(i) 
 
 
 if __name__ == '__main__':
-    argh.dispatch_command(remove_except)
+    argh.dispatch_command(remove_except, completion=False)
 
