@@ -48,20 +48,21 @@ def remove_except(force=False,
 
     # fill list of files to be deleted
     del_list = []
+    all_files = sorted(glob("*"))
+    print all_files
     
-    for file in glob("./*"):
+    for file in all_files:
         if file not in args:
             del_list.append(file)
-        del_list.sort()
 
     # output in columns 
-    print get_column_output(del_list) 
+    print "\t Current directory listing:"
     print
-    print "Remove all files except"
+    print get_column_output(all_files) 
+    print "\t Remove all files except"
     print
     print get_column_output(args)
-    print
-    print "?"
+    print "\t ?"
     print
 
     # get removal confirmation
