@@ -24,13 +24,13 @@ def get_column_output(s, ncols=3):
 @argh.arg_hack()
 def remove_except(force=False,
                   recursive=False, 
-                  verbose=True, *args):
+                  verbose=False, *args):
     """Delete all files/directories except the ones specified in *args.
 
         Parameters:
         -----------
             force: bool
-                Remove files without asking if set True.
+                Remove files without asking.
             recursive: bool
                 Whether to recursively remove eventual directories.
             verbose: bool
