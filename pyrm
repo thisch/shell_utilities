@@ -8,7 +8,7 @@ import sys
 from glob import glob
 
 
-def get_column_output(s, ncols=5):
+def get_column_output(s, ncols=3):
     """Format input list of strings into ncols columns."""
 
     s = [ s[i:i+ncols] for i in range(0, len(s), ncols) ]
