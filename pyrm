@@ -24,7 +24,8 @@ def get_column_output(s, ncols=3):
 @argh.arg_hack()
 def remove_except(force=False,
                   recursive=False, 
-                  verbose=False, *args):
+                  verbose=False, 
+                  ignore="EP_SETTINGS.cfg", *args):
     """Delete all files/directories except the ones specified in *args.
 
         Parameters:
@@ -35,6 +36,8 @@ def remove_except(force=False,
                 Whether to recursively remove eventual directories.
             verbose: bool
                 Show detailed output.
+            ignore: str
+                Files/Folders to ignore per default.
     """
 
     # exit if no arguments are supplied
@@ -45,6 +48,9 @@ def remove_except(force=False,
     args = list(args)
     script = basename(sys.argv[0])
     args.append(script)
+
+    # ignore per default
+    args.append(ignore)
 
     # fill list of files to be deleted
     del_list = []
