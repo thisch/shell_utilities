@@ -44,10 +44,12 @@ def remove_except(force=False,
     # add calling script to files which should be left untouched
     args = list(args)
     script = basename(sys.argv[0])
-    args.append(script)
+    if os.path.isfile(script):
+        args.append(script)
 
     # ignore per default
-    args.append(ignore)
+    if os.path.isfile(ignore):
+        args.append(ignore)
 
     # fill list of files to be deleted
     del_list = []
