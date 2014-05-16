@@ -1,15 +1,15 @@
 #!/usr/bin/env python2.7
 
+import sys
+from glob import glob
 import os
 from os.path import basename
 import shutil
 import argh
-import sys
-from glob import glob
 
 
 def get_column_output(s, ncols=3):
-    """Format input list of strings into ncols columns."""
+    """Format input list of strings s into ncols columns."""
 
     s = [ s[i:i+ncols] for i in range(0, len(s), ncols) ]
     col_width = 2 + max(len(word) for row in s for word in row)
@@ -24,18 +24,15 @@ def get_column_output(s, ncols=3):
 @argh.arg_hack()
 def remove_except(force=False,
                   recursive=False, 
-                  verbose=False, 
                   ignore="EP_SETTINGS.cfg", *args):
     """Delete all files/directories except the ones specified in *args.
 
         Parameters:
         -----------
             force: bool
-                Remove files without asking.
+                Remove files without asking (triggers --verbose=False).
             recursive: bool
                 Whether to recursively remove eventual directories.
-            verbose: bool
-                Show detailed output.
             ignore: str
                 Files/Folders to ignore per default.
     """
@@ -60,23 +57,20 @@ def remove_except(force=False,
         if file not in args:
             del_list.append(file)
 
-    # output in columns 
-    print "Current directory listing:"
-    print
-    print get_column_output(all_files) 
-    print "Remove all files except"
-    print
-    print get_column_output(args)
-    print "?"
-    print
-
-    # get removal confirmation
+    # output in columns and removal confirmation
     if not force:
+        print "Current directory listing:"
+        print
+        print get_column_output(all_files) 
+        print "Remove all files except"
+        print
+        print get_column_output(args)
+        print "?"
+        print
         input = raw_input("Press (Yes | Y | yes | y) to delete files:\n")
+        print
     else:
         input = 'Y'
-
-    print
 
     if input in ('Yes', 'Y', 'yes', 'y'):
         for i in del_list:
@@ -85,10 +79,10 @@ def remove_except(force=False,
             except OSError:
                 if recursive:
                     shutil.rmtree(i) 
-                    if verbose:
+                    if not force:
                         print "deleting", basename(i)
             else:
-                if verbose:
+                if not force:
                     print "deleting", basename(i)
     else:
         print "Aborting removal. \n"
