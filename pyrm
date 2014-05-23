@@ -26,6 +26,8 @@ def remove_except(force=False,
                   recursive=False, 
                   ignore="EP_SETTINGS.cfg", *args):
     """Delete all files/directories except the ones specified in *args.
+       
+       # TODO: multiple files to ignore
 
         Parameters:
         -----------
