@@ -26,12 +26,10 @@ def remove_except(files=None, force=False,
                   recursive=False):
     """Delete all files/directories except the ones specified.
        
-       # TODO: multiple files to ignore
-
         Parameters:
         -----------
             files: list of strings
-                Delete all files/directories except the ones specified.
+                Files to leave untouched.
             force: bool
                 Remove files without asking.
             recursive: bool
@@ -43,14 +41,9 @@ def remove_except(files=None, force=False,
         sys.exit("Error: no arguments supplied")
 
     # add calling script to files which should be left untouched
-    files = list(files)
     script = basename(sys.argv[0])
     if os.path.isfile(script):
         args.append(script)
-
-    # ignore per default
-    #if os.path.isfile(ignore):
-    #    args.append(ignore)
 
     # fill list of files to be deleted
     del_list = []
@@ -95,13 +88,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(formatter_class=help_formatter)
     parser.add_argument("files", nargs="+",
-                        help="Delete all files/directories except the ones specified.")
+                        help="Files to leave untouched.")
     parser.add_argument("-f", "--force", action="store_true",
                         help="Remove files without asking.")
     parser.add_argument("-r", "--recursive", action="store_true",
                         help="Whether to recursively remove eventual directories.")
-    #parser.add_argument("-i", "--ignore", nargs="*", default=["EP_SETTINGS.cfg", "input.xml"], 
-    #                    help="Files/Folders to ignore per default.")
     args = parser.parse_args()
 
     remove_except(files=args.files, force=args.force, 
