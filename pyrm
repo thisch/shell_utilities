@@ -1,10 +1,13 @@
 #!/usr/bin/env python2.7
+"""A simple script to remove all but a few given files/directories in the
+current working directory.
+"""
 
-import sys
-from glob import glob
+import glob
 import os
-from os.path import basename
 import shutil
+import sys
+
 import argparse
 from argparse import ArgumentDefaultsHelpFormatter as help_formatter
 
@@ -15,17 +18,16 @@ def get_column_output(s, ncols=3):
     s = [ s[i:i+ncols] for i in range(0, len(s), ncols) ]
     col_width = 2 + max(len(word) for row in s for word in row)
 
-    s_formatted = "" 
+    s_formatted = ""
     for row in s:
         s_formatted += "\t" + "".join(word.ljust(col_width) for word in row) + "\n"
 
-    return s_formatted 
+    return s_formatted
 
 
-def remove_except(files=None, force=False,
-                  recursive=False):
+def remove_except(files=None, force=False, recursive=False):
     """Delete all files/directories except the ones specified.
-       
+
         Parameters:
         -----------
             files: list of strings
@@ -41,14 +43,14 @@ def remove_except(files=None, force=False,
         sys.exit("Error: no arguments supplied")
 
     # add calling script to files which should be left untouched
-    script = basename(sys.argv[0])
+    script = os.path.basename(sys.argv[0])
     if os.path.isfile(script):
         args.append(script)
 
     # fill list of files to be deleted
     del_list = []
-    all_files = sorted(glob("*"))
-    
+    all_files = sorted(glob.glob("*"))
+
     for file in all_files:
         if file not in files:
             del_list.append(file)
@@ -57,7 +59,7 @@ def remove_except(files=None, force=False,
     if not force:
         print "Current directory listing:"
         print
-        print get_column_output(all_files) 
+        print get_column_output(all_files)
         print "Remove all files except"
         print
         print get_column_output(files)
@@ -74,27 +76,27 @@ def remove_except(files=None, force=False,
                 os.remove(i)
             except OSError:
                 if recursive:
-                    shutil.rmtree(i) 
+                    shutil.rmtree(i)
                     if not force:
-                        print "deleting", basename(i)
+                        print "deleting", os.path.basename(i)
             else:
                 if not force:
-                    print "deleting", basename(i)
+                    print "deleting", os.path.basename(i)
     else:
-        print "Aborting removal. \n"
+        print "Aborting removal."
 
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(formatter_class=help_formatter)
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=help_formatter)
     parser.add_argument("files", nargs="+",
                         help="Files to leave untouched.")
     parser.add_argument("-f", "--force", action="store_true",
                         help="Remove files without asking.")
     parser.add_argument("-r", "--recursive", action="store_true",
-                        help="Whether to recursively remove eventual directories.")
+                        help="Whether to recursively remove directories.")
     args = parser.parse_args()
 
-    remove_except(files=args.files, force=args.force, 
+    remove_except(files=args.files, force=args.force,
                   recursive=args.recursive)
-
