@@ -1,8 +1,7 @@
 #!/usr/bin/env python2.7
 
-import subprocess
-
 import argparse
+import subprocess
 import textwrap
 
 
@@ -65,7 +64,6 @@ if params.get("local"):
 
 
 if params.get("cluster"):
-
     jobarray_settings = ""
     joblist = params.get("jobarray")
     if joblist:
