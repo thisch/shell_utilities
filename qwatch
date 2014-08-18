@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# simple script to monitor SGE grid engine jobs
+watch -n 5 'eval "echo Total number of submitted jobs: \$(qstat | grep doppler | wc -l)"; 
+	        eval "echo Total number of running jobs: \$(qstat | grep doppler | grep all.q | wc -l)"; 
+	        eval "echo Total number of queued jobs: \$(qstat | grep doppler | grep qw | wc -l)"; 
+	        echo; qstat'
