@@ -79,7 +79,7 @@ if params.get("cluster"):
         """.format(njobs, dirs)
 
     tmp_file = ""
-    if jobarray_settings is None:
+    if not jobarray_settings:
         tmp_file = """
             #$ -o "tmp.out"
         """
