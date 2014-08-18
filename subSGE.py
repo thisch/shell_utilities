@@ -21,7 +21,7 @@ parser.add_argument("-e", "--executable", default="solve_xml_mumps",
 parser.add_argument("-i", "--input-xml", default="input.xml",
                     type=str, help="Input file for executable")
 parser.add_argument("-j", "--jobarray", nargs="+", type=str,
-                    help="Submit list as job array to SGE cluster")
+                    help="Submit job array to cluster")
 
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("-c", "--cluster", action="store_true",
