@@ -79,6 +79,8 @@ def remove_except(files=None, force=False, recursive=False):
                     shutil.rmtree(i)
                     if not force:
                         print "deleting", os.path.basename(i)
+                else:
+                    print "Warning: directory", os.path.basename(i), "not deleted."
             else:
                 if not force:
                     print "deleting", os.path.basename(i)
