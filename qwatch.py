@@ -6,25 +6,27 @@ import time
 
 
 USER = os.getlogin()
+STATUS_COLUMN = 4
 
 
 def qstat():
-    q = subprocess.check_output(['qstat'])
+    """Return statistics of the SGE command 'qstat'."""
+
+    qstat = subprocess.check_output(['qstat'])
 
     # filter relevant lines of qstat
-    qsub_text = [ col.split() for col in q.splitlines() if USER in col ]
+    qstat_text = [ col.split() for col in qstat.splitlines() if USER in col ]
 
     # count running/queued jobs
     nrunning = []
     nqueue = []
-    status_column = 4
-    for d in qsub_text:
-        if d[status_column] == "r":
+    for d in qstat_text:
+        if d[STATUS_COLUMN] == "r":
             nrunning.append(d)
-        if d[status_column] == "qw":
+        if d[STATUS_COLUMN] == "qw":
             nqueue.append(d)
 
-    ntotal = len(qsub_text)
+    ntotal = len(qstat_text)
     nrunning = len(nrunning)
     nqueue = len(nqueue)
 
@@ -40,11 +42,16 @@ def qstat():
 
     """.format(ntotal, nrunning, nqueue)
 
-    return q
+    return qstat
 
 
-if __name__ == '__main__':
+def main(n=5):
     while True:
         subprocess.call(['clear'])
         print qstat()
         time.sleep(5)
+
+
+if __name__ == '__main__':
+    import argh
+    argh.dispatch_command(main)
