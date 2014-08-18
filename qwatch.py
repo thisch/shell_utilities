@@ -7,19 +7,24 @@ import time
 
 USER = os.getlogin()
 
+
 def qstat():
     q = subprocess.check_output(['qstat'])
 
-    data_list = [ col.split() for col in q.splitlines() if USER in col ]
+    # filter relevant lines of qstat
+    qsub_text = [ col.split() for col in q.splitlines() if USER in col ]
+
+    # count running/queued jobs
     nrunning = []
     nqueue = []
-    for d in data_list:
-        if d[4] == "r":
+    status_column = 4
+    for d in qsub_text:
+        if d[status_column] == "r":
             nrunning.append(d)
-        if d[4] == "qw":
+        if d[status_column] == "qw":
             nqueue.append(d)
 
-    ntotal = len(data_list)
+    ntotal = len(qsub_text)
     nrunning = len(nrunning)
     nqueue = len(nqueue)
 
@@ -29,11 +34,11 @@ def qstat():
     print """
         SGE summary:
         ============
-            Total number of submitted jobs: {1}
-            Total number of running jobs:   {2}
-            Total number of queued jobs:    {3}
+            Total number of submitted jobs: {0}
+            Total number of running jobs:   {1}
+            Total number of queued jobs:    {2}
 
-    """.format(date, ntotal, nrunning, nqueue)
+    """.format(ntotal, nrunning, nqueue)
 
     return q
 
