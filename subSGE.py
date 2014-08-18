@@ -59,7 +59,7 @@ if params.get("local"):
     with open("machines", "w") as f:
         f.write("localhost\n")
 
-    cmd = ("time mpirun -np 1 -machinefile machines"
+    cmd = ("time mpirun -np 1 -machinefile machines "
            "{executable} -i {input_xml}").format(**params)
     subprocess.call(cmd.split())
 
