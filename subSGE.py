@@ -1,118 +1,118 @@
 #!/usr/bin/env python2.7
 
+import subprocess
+
 import argparse
-import subprocess as sp
-import sys
-import os.path
 import textwrap
+
 
 # ----------------------------------------------------------------------
 # Parsing command-line arguments
 # ----------------------------------------------------------------------
 parser = argparse.ArgumentParser()
+
 parser.add_argument("-w", "--walltime", nargs="?", default=30, type=int,
-                    help="Maximum job runtime (in minutes)" )
+                    help="Maximum job runtime (in minutes)")
 parser.add_argument("-N", "--name", default="SGE_job", type=str,
-                    help="SGE job name" )
+                    help="SGE job name")
 parser.add_argument("-n", "--nnodes", nargs="?", default=8, type=int,
-                    help="Number of nodes on cluster" )
+                    help="Number of nodes on cluster")
 parser.add_argument("-e", "--executable", default="solve_xml_mumps",
                     type=str, help="Executable for job submission")
 parser.add_argument("-i", "--input-xml", default="input.xml",
                     type=str, help="Input file for executable")
-parser.add_argument("-a", "--array", nargs="+", type=str,
-                    help="Submit list as array job to SGE cluster")
-group = parser.add_mutually_exclusive_group()
-group.add_argument("-c", "--cluster", action="store_true",
-                    help="Submit job to SGE cluster")
-group.add_argument("-l", "--local", action="store_true",
-                    help="Run job locally")
-args = parser.parse_args()
+parser.add_argument("-j", "--jobarray", nargs="+", type=str,
+                    help="Submit list as job array to SGE cluster")
+
+mode = parser.add_mutually_exclusive_group()
+mode.add_argument("-c", "--cluster", action="store_true",
+                  help="Submit job to SGE cluster")
+mode.add_argument("-l", "--local", action="store_true",
+                  help="Run job locally")
+
+params = vars(parser.parse_args())
+
 
 # ----------------------------------------------------------------------
 # Print options
 # ----------------------------------------------------------------------
-print
-print "Options:"
-print
-print "SGE job name:\t\t", args.name
-print "Run on local node:\t", args.local
-print "Run on SGE cluster:\t", args.cluster
-print "Maximum job runtime:\t", args.walltime, "minutes"
-print "Number of nodes:\t", args.nnodes
-print "Executable file:\t", args.executable
-print "Input xml-file:\t\t", args.input_xml
-print "Array job directories:\t", args.array
-print
+print """
+
+    Options:
+
+        SGE job name:           {name}
+        Run on local node:      {local}
+        Run on cluster:         {cluster}
+        Maximum job runtime:    {walltime} minutes
+        Number of nodes:        {nnodes}
+        Executable file:        {executable}
+        Input xml file:         {input_xml}
+        Job array directories:  {jobarray}
+
+""".format(**params)
+
 
 # ----------------------------------------------------------------------
 # Process arguments
 # ----------------------------------------------------------------------
-#try:
-#    if not os.path.isfile(args.input_xml):
-#        sys.exit()
-#except:
-#    print "Error: input xml %s not found" % (args.input_xml)
-
-
-if args.local:
+if params.get("local"):
     with open("machines", "w") as f:
         f.write("localhost\n")
 
-    sp.call("time mpirun -np 1 -machinefile machines %s -i %s" %
-            (args.executable, args.input_xml), shell=True)
+    cmd = ("time mpirun -np 1 -machinefile machines"
+           "{executable} -i {input_xml}").format(**params)
+    subprocess.call(cmd.split())
 
-    
-if args.cluster: 
 
-    ARRAYJOB = ""
-    if args.array:
-        NJOBS = len(args.array)
-        DIRS = "(" + " ".join(args.array) + ")"
-    
-        ARRAYJOB = """
-            #$ -t 1-%s
+if params.get("cluster"):
 
-            JOB_DIRS=%s
+    jobarray_settings = ""
+    joblist = params.get("jobarray")
+    if joblist:
+        njobs = len(joblist)
+        dirs = " ".join(joblist)
+
+        jobarray_settings = """
+            #$ -t 1-{0}
+
+            JOB_DIRS=({1})
             INDEX=$((${SGE_TASK_ID} - 1))
-            cd ${JOB_DIRS[${INDEX}]}            
-        """ % (NJOBS, DIRS)
-    
-    OUTPUT = ""
-    if not ARRAYJOB:
-        OUTPUT = """
+            cd ${JOB_DIRS[${INDEX}]}
+        """.format(njobs, dirs)
+
+    tmp_file = ""
+    if jobarray_settings is None:
+        tmp_file = """
             #$ -o "tmp.out"
         """
-        
+
     SGE_INPUT = """
             #!/bin/bash
             #$ -S /bin/bash
             #$ -cwd
             #$ -V
-            #$ -N %s
+            #$ -N {name}
             #$ -j y
-            #$ -pe mpich %i
-            #$ -l h_rt=00:%i:00   
-            %s
-            %s
-        
-            time mpirun -machinefile $TMPDIR/machines -np $NSLOTS %s -i %s
-    """ % (args.name, args.nnodes, args.walltime, OUTPUT, ARRAYJOB,
-           args.executable, args.input_xml)
-    
+            #$ -pe mpich {nnodes}
+            #$ -l h_rt=00:{walltime}:00
+            {0}
+            {1}
+
+            time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
+    """.format(tmp_file, jobarray_settings, **params)
+
     # Remove leading whitespace
-    SGE_INPUT = textwrap.dedent(SGE_INPUT) 
-    
+    SGE_INPUT = textwrap.dedent(SGE_INPUT)
+
     # Print SGE input file
     with open("SGE_INPUT.cfg", "w") as f:
         f.write(SGE_INPUT)
+        print
+        print "SGE settings:"
+        print SGE_INPUT
 
     # Open a pipe to the qsub command
-    qsub = sp.Popen(["qsub"], stdin=sp.PIPE)    
-    
+    qsub = subprocess.Popen(["qsub"], stdin=subprocess.PIPE)
+
     # Send SGE_input to qsub
     qsub.communicate(SGE_INPUT)
-    
-    print ""
-    print "SGE settings:"
-    print SGE_INPUT
