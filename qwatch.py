@@ -12,7 +12,7 @@ STATUS_COLUMN = 4
 
 
 def qstat():
-    """Return usage statistics for the SGE command 'qstat'."""
+    """Process the SGE command 'qstat'."""
 
     # get qstat output
     qstat = subprocess.check_output(['qstat'])
@@ -21,12 +21,13 @@ def qstat():
     qstat_lines = [ line.split() for line in 
                      qstat.splitlines() if USER in line ]
     
-    #alternative:
+    # get number of running/queued jobs
     njobs = dict()
     for status in "r", "qw":
         njobs[status] = len([ col for col in qstat_lines if 
-                               status in q[STATUS_COLUMN] ])
-    # take into account job arrays:
+                               status in col[STATUS_COLUMN] ])
+
+    # take job arrays into account
     # TODO
 
     njobs["total"] = len(qstat_lines)
@@ -49,6 +50,13 @@ def qstat():
 
 
 def main(n=5):
+    """Return usage statistics for the SGE command 'qstat'.
+        
+        Paramters:
+        ----------
+            n: int
+                Update interval (seconds).
+    """
     while True:
         subprocess.call(['clear'])
         print qstat()
