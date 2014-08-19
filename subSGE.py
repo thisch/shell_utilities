@@ -1,13 +1,32 @@
 #!/usr/bin/env python2.7
+"""Submit a job to the Sun Grid Engine (SGE).
+
+    usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
+                     [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-c | -l]
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    -w [WALLTIME], --walltime [WALLTIME]
+                            Maximum job runtime (in minutes)
+    -N NAME, --name NAME  SGE job name
+    -n [NNODES], --nnodes [NNODES]
+                            Number of nodes on cluster
+    -e EXECUTABLE, --executable EXECUTABLE
+                            Executable for job submission
+    -i INPUT_XML, --input-xml INPUT_XML
+                            Input file for executable
+    -j JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
+                            Submit job array to cluster
+    -c, --cluster         Submit job to SGE cluster
+    -l, --local           Run job locally
+"""
 
 import argparse
 import subprocess
 import textwrap
 
 
-# ----------------------------------------------------------------------
-# Parsing command-line arguments
-# ----------------------------------------------------------------------
+### parse command-line arguments
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-w", "--walltime", nargs="?", default=30, type=int,
@@ -32,9 +51,7 @@ mode.add_argument("-l", "--local", action="store_true",
 params = vars(parser.parse_args())
 
 
-# ----------------------------------------------------------------------
-# Print options
-# ----------------------------------------------------------------------
+### print options
 print """
 
     Options:
@@ -51,9 +68,7 @@ print """
 """.format(**params)
 
 
-# ----------------------------------------------------------------------
-# Process arguments
-# ----------------------------------------------------------------------
+### process parameters
 if params.get("local"):
     with open("machines", "w") as f:
         f.write("localhost\n")
@@ -99,18 +114,18 @@ if params.get("cluster"):
             time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
     """.format(tmp_file, jobarray_settings, **params)
 
-    # Remove leading whitespace
+    # remove leading whitespace
     SGE_INPUT = textwrap.dedent(SGE_INPUT)
 
-    # Print SGE input file
+    # print SGE input file
     with open("SGE_INPUT.cfg", "w") as f:
         f.write(SGE_INPUT)
         print
         print "SGE settings:"
         print SGE_INPUT
 
-    # Open a pipe to the qsub command
+    # open a pipe to the qsub command
     qsub = subprocess.Popen(["qsub"], stdin=subprocess.PIPE)
 
-    # Send SGE_input to qsub
+    # send SGE_input to qsub
     qsub.communicate(SGE_INPUT)
