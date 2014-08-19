@@ -5,42 +5,45 @@ import subprocess
 import time
 
 
+# get $USER
 USER = os.getlogin()
+# column in qstat output to read status from
 STATUS_COLUMN = 4
 
 
 def qstat():
-    """Return statistics of the SGE command 'qstat'."""
+    """Return usage statistics for the SGE command 'qstat'."""
 
+    # get qstat output
     qstat = subprocess.check_output(['qstat'])
 
     # filter relevant lines of qstat
-    qstat_text = [ col.split() for col in qstat.splitlines() if USER in col ]
+    qstat_lines = [ line.split() for line in 
+                     qstat.splitlines() if USER in line ]
+    
+    #alternative:
+    njobs = dict()
+    for status in "r", "qw":
+        njobs[status] = len([ col for col in qstat_lines if 
+                               status in q[STATUS_COLUMN] ])
+    # take into account job arrays:
+    # TODO
 
-    # count running/queued jobs
-    nrunning = []
-    nqueue = []
-    for d in qstat_text:
-        if d[STATUS_COLUMN] == "r":
-            nrunning.append(d)
-        if d[STATUS_COLUMN] == "qw":
-            nqueue.append(d)
+    njobs["total"] = len(qstat_lines)
 
-    ntotal = len(qstat_text)
-    nrunning = len(nrunning)
-    nqueue = len(nqueue)
-
+    # get current timestamp
     date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
     print date
 
+    # output
     print """
         SGE summary:
         ============
-            Total number of submitted jobs: {0}
-            Total number of running jobs:   {1}
-            Total number of queued jobs:    {2}
+            Total number of submitted jobs: {total}
+            Total number of running jobs:   {r}
+            Total number of queued jobs:    {qw}
 
-    """.format(ntotal, nrunning, nqueue)
+    """.format(**njobs)
 
     return qstat
 
