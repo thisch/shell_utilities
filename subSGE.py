@@ -1,10 +1,10 @@
 #!/usr/bin/env python2.7
 """Submit a job to the Sun Grid Engine (SGE).
 
-    usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
-                     [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-c | -l]
+usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
+                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-c | -l]
 
-    optional arguments:
+optional arguments:
     -h, --help            show this help message and exit
     -w [WALLTIME], --walltime [WALLTIME]
                             Maximum job runtime (in minutes)

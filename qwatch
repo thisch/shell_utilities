@@ -4,14 +4,17 @@
 Returns some statistics for the SGE command 'qstat', i.e., the number of queued
 and running jobs, as well as the total number of submitted jobs.
 
-    Parameters:
-    -----------
-        n: int
-            Update interval (seconds).
+usage: qwatch [-h] [-n N]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -n N        Update interval (seconds).
 """
 
 import os
 import subprocess
+
+import argparse
 import time
 
 

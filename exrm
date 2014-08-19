@@ -2,15 +2,12 @@
 """A simple script to remove all but a few given files/directories in the
 current working directory.
 
-    usage: exrm [-h] [-f] [-r] files [files ...]
+usage: exrm [-h] [-f] [-r] files [files ...]
 
-    A simple script to remove all but a few given files/directories in the 
-    current working directory.
-
-    positional arguments:
+positional arguments:
     files            Files to leave untouched.
 
-    optional arguments:
+optional arguments:
     -h, --help       show this help message and exit
     -f, --force      Remove files without asking. (default: False)
     -r, --recursive  Whether to recursively remove directories. (default: False)
