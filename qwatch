@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 """Monitor the jobs submitted to the Sun Grid Engine (SGE).
 
-Returns some statistics for the SGE command 'qstat', i.e., the number of queued
+Returns some statistics for the SGE command 'qstat': the number of queued
 and running jobs, as well as the total number of submitted jobs.
 
 usage: qwatch [-h] [-n N]
