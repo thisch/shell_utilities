@@ -32,7 +32,7 @@ args = vars(parser.parse_args())
 # process qstat
 while True:
     subprocess.call(['clear'])
-    print qstat()
+
     # get qstat output
     qstat = subprocess.check_output(['qstat'])
 
