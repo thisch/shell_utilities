@@ -1,4 +1,9 @@
 #!/usr/bin/env python2.7
+"""Monitor the jobs submitted via the Sun Grid Engine (SGE).
+
+Return some statistics for the SGE command 'qstat', i.e., the number of queued
+and running jobs, respectively, as well as the total number of submitted jobs.
+"""
 
 import os
 import subprocess
