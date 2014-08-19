@@ -52,8 +52,8 @@ def qstat():
 def main(n=5):
     """Return usage statistics for the SGE command 'qstat'.
         
-        Paramters:
-        ----------
+        Parameters:
+        -----------
             n: int
                 Update interval (seconds).
     """
