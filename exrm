@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
-"""A simple script to remove all but a few given files/directories in the
-current working directory.
+"""Remove all but a set of given files/directories in the current directory.
 
 usage: exrm [-h] [-f] [-r] files [files ...]
 
