@@ -70,11 +70,7 @@ print """
 
 ### process parameters
 if params.get("local"):
-    with open("machines", "w") as f:
-        f.write("localhost\n")
-
-    cmd = ("time mpirun -np 1 -machinefile machines "
-           "{executable} -i {input_xml}").format(**params)
+    cmd = ("time {executable}").format(**params)
     subprocess.call(cmd.split())
 
 
@@ -118,7 +114,7 @@ if params.get("cluster"):
     SGE_INPUT = textwrap.dedent(SGE_INPUT)
 
     # print SGE input file
-    with open("SGE_INPUT.cfg", "w") as f:
+    with open("SGE_INPUT.sh", "w") as f:
         f.write(SGE_INPUT)
         print
         print "SGE settings:"
