@@ -95,7 +95,7 @@ if params.get("cluster"):
             #$ -o "tmp.out"
         """
 
-    SGE_INPUT = """
+    SGE_OPTIONS = """
             #!/bin/bash
             #$ -S /bin/bash
             #$ -cwd
@@ -104,11 +104,15 @@ if params.get("cluster"):
             #$ -j y
             #$ -pe mpich {nnodes}
             #$ -l h_rt=00:{walltime}:00
-            {0}
-            {1}
+    """.format(**params)
 
-            time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
-    """.format(tmp_file, jobarray_settings, **params)
+    if params.get("solve_xml_mumps"):
+        CMD = ("time mpirun -machinefile $TMPDIR/machines -np $NSLOTS 
+                 {executable} -i {input_xml}".format(**params))
+    else:
+        CMD = "time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable}".format(**params)
+
+    SGE_INPUT = SGE_OPTIONS + jobarray_settings + tmp_file + CMD
 
     # remove leading whitespace
     SGE_INPUT = textwrap.dedent(SGE_INPUT)
