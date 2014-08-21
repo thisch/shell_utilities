@@ -75,25 +75,28 @@ if params.get("local"):
 
 
 if params.get("cluster"):
-    jobarray_settings = ""
+
     joblist = params.get("jobarray")
     if joblist:
         njobs = len(joblist)
         dirs = " ".join(joblist)
 
-        jobarray_settings = """
+        JOBARRAY_SETTINGS = """
             #$ -t 1-{0}
 
             JOB_DIRS=({1})
             INDEX=$((${SGE_TASK_ID} - 1))
             cd ${JOB_DIRS[${INDEX}]}
         """.format(njobs, dirs)
+    else:
+        JOBARRAY_SETTINGS = ""
 
-    tmp_file = ""
-    if not jobarray_settings:
-        tmp_file = """
+    if not JOBARRAY_SETTINGS:
+        TMP_FILE = """
             #$ -o "tmp.out"
         """
+    else:
+        TMP_FILE = ""
 
     SGE_OPTIONS = """
             #!/bin/bash
@@ -107,12 +110,15 @@ if params.get("cluster"):
     """.format(**params)
 
     if params.get("solve_xml_mumps"):
-        CMD = ("time mpirun -machinefile $TMPDIR/machines -np $NSLOTS 
-                 {executable} -i {input_xml}".format(**params))
+        CMD = """
+            time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
+        """.format(**params)
     else:
-        CMD = "time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable}".format(**params)
+        CMD = """
+            time {executable}
+        """.format(**params)
 
-    SGE_INPUT = SGE_OPTIONS + jobarray_settings + tmp_file + CMD
+    SGE_INPUT = SGE_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + CMD
 
     # remove leading whitespace
     SGE_INPUT = textwrap.dedent(SGE_INPUT)
