@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
-"""A simple script to remove all but a few given files/directories in the
-current working directory.
+"""Remove all but a set of given files/directories in the current directory.
 
 usage: exrm [-h] [-f] [-r] files [files ...]
 
@@ -99,8 +98,10 @@ def remove_except(files=None, force=False, recursive=False):
 
 
 if __name__ == '__main__':
+    description = ("Remove all but a set of given files/directories in "
+                   "the current directory.")
 
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=description, 
                                      formatter_class=help_formatter)
     parser.add_argument("files", nargs="+",
                         help="Files to leave untouched.")
@@ -108,7 +109,6 @@ if __name__ == '__main__':
                         help="Remove files without asking.")
     parser.add_argument("-r", "--recursive", action="store_true",
                         help="Whether to recursively remove directories.")
-    args = parser.parse_args()
+    params = vars(parser.parse_args())
 
-    remove_except(files=args.files, force=args.force,
-                  recursive=args.recursive)
+    remove_except(**params)
