@@ -109,7 +109,7 @@ if params.get("cluster"):
             #$ -l h_rt=00:{walltime}:00
     """.format(**params)
 
-    if params.get("solve_xml_mumps"):
+    if params.get("executable") == "solve_xml_mumps":
         CMD = """
             time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
         """.format(**params)
