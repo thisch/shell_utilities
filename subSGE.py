@@ -75,11 +75,10 @@ if params.get("local"):
 
 
 if params.get("cluster"):
-
     joblist = params.get("jobarray")
     if joblist:
-        njobs = len(joblist)
-        dirs = " ".join(joblist)
+        NJOBS = len(joblist)
+        DIRS = " ".join(joblist)
 
         JOBARRAY_SETTINGS = """
             #$ -t 1-{0}
@@ -87,7 +86,7 @@ if params.get("cluster"):
             JOB_DIRS=({1})
             INDEX=$((${SGE_TASK_ID} - 1))
             cd ${JOB_DIRS[${INDEX}]}
-        """.format(njobs, dirs)
+        """.format(NJOBS, DIRS)
     else:
         JOBARRAY_SETTINGS = ""
 
