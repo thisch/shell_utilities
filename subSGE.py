@@ -114,6 +114,7 @@ if params.get("cluster"):
         """.format(**params)
     else:
         CMD = """
+            export PYTHONUNBUFFERED=1
             time {executable}
         """.format(**params)
 
