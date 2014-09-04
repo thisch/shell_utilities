@@ -2,7 +2,7 @@
 """Submit a job to the Sun Grid Engine (SGE).
 
 usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
-                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-d DRYRUN] [-c | -l]
+                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-d] [-c | -l]
 
 optional arguments:
     -h, --help            show this help message and exit
@@ -44,7 +44,7 @@ parser.add_argument("-i", "--input-xml", default="input.xml",
                     type=str, help="Input file for executable")
 parser.add_argument("-j", "--jobarray", nargs="+", type=str,
                     help="Submit job array to cluster")
-parser.add_argument("-d", "--dryrun", type=str, default=None,
+parser.add_argument("-d", "--dryrun", action="store_true",
                     help="Write submit file and exit.")
 
 mode = parser.add_mutually_exclusive_group()
