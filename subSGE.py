@@ -2,7 +2,7 @@
 """Submit a job to the Sun Grid Engine (SGE).
 
 usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
-                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-c | -l]
+                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-d DRYRUN] [-c | -l]
 
 optional arguments:
     -h, --help            show this help message and exit
@@ -17,6 +17,8 @@ optional arguments:
                             Input file for executable
     -j JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                             Submit job array to cluster
+    -d DRYRUN, --dryrun DRYRUN
+                          Write submit file and exit.
     -c, --cluster         Submit job to SGE cluster
     -l, --local           Run job locally
 """
@@ -24,6 +26,7 @@ optional arguments:
 import argparse
 import subprocess
 import textwrap
+import sys
 
 
 ### parse command-line arguments
@@ -41,6 +44,8 @@ parser.add_argument("-i", "--input-xml", default="input.xml",
                     type=str, help="Input file for executable")
 parser.add_argument("-j", "--jobarray", nargs="+", type=str,
                     help="Submit job array to cluster")
+parser.add_argument("-d", "--dryrun", type=str, default=None,
+                    help="Write submit file and exit.")
 
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("-c", "--cluster", action="store_true",
@@ -129,6 +134,9 @@ if params.get("cluster"):
         print
         print "SGE settings:"
         print SGE_INPUT
+
+    if params.get("dryrun"):
+        sys.exit()
 
     # open a pipe to the qsub command
     qsub = subprocess.Popen(["qsub"], stdin=subprocess.PIPE)
