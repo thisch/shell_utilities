@@ -1,0 +1,9 @@
+#!/bin/bash
+
+xmin=$1
+xmax=$2
+xN=$3
+
+for i in $(seq 0 1 $((xN-1))); do
+    echo | awk -v i=$i -v xmin=$xmin -v xmax=$xmax -v xN=$xN '{printf "%.8f ", xmin + 1.*i/(xN-1)*(xmax-xmin)}'
+done
