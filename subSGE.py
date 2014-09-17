@@ -2,7 +2,7 @@
 """Submit a job to the Sun Grid Engine (SGE).
 
 usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
-                 [-i INPUT_XML] [-j JOBARRAY [JOBARRAY ...]] [-d] [-c | -l]
+                 [-i INPUT_XML] [-a JOBARRAY [JOBARRAY ...]] [-d] [-c | -l]
 
 optional arguments:
     -h, --help            show this help message and exit
@@ -15,7 +15,7 @@ optional arguments:
                             Executable for job submission
     -i INPUT_XML, --input-xml INPUT_XML
                             Input file for executable
-    -j JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
+    -a JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                             Submit job array to cluster
     -d DRYRUN, --dryrun DRYRUN
                           Write submit file and exit.
@@ -42,7 +42,7 @@ parser.add_argument("-e", "--executable", default="solve_xml_mumps",
                     type=str, help="Executable for job submission")
 parser.add_argument("-i", "--input-xml", default="input.xml",
                     type=str, help="Input file for executable")
-parser.add_argument("-j", "--jobarray", nargs="+", type=str,
+parser.add_argument("-a", "--jobarray", nargs="+", type=str,
                     help="Submit job array to cluster")
 parser.add_argument("-d", "--dryrun", action="store_true",
                     help="Write submit file and exit.")
@@ -89,8 +89,8 @@ if params.get("cluster"):
             #$ -t 1-{0}
 
             JOB_DIRS=({1})
-            INDEX=$((${SGE_TASK_ID} - 1))
-            cd ${JOB_DIRS[${INDEX}]}
+            INDEX=$((${{SGE_TASK_ID}} - 1))
+            cd ${{JOB_DIRS[${{INDEX}}]}}
         """.format(NJOBS, DIRS)
     else:
         JOBARRAY_SETTINGS = ""
