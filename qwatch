@@ -4,15 +4,17 @@
 Returns some statistics for the SGE command 'qstat': the number of queued
 and running jobs, as well as the total number of submitted jobs.
 
-usage: qwatch [-h] [-n N]
+usage: qwatch [-h] [-n N] [-l L]
 
 optional arguments:
   -h, --help  show this help message and exit
-  -n N        Update interval (seconds).
+  -n N        update interval (seconds)
+  -l L        number of lines to print in the qstat summary
 """
 
 import os
 import subprocess
+import sys
 
 import argparse
 import time
@@ -25,46 +27,54 @@ STATUS_COLUMN = 4
 
 # get command-line arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-n', type=float, default=5, 
-                    help='Update interval (seconds).')
+parser.add_argument('-n', type=float, default=5,
+                    help='update interval (seconds)')
+parser.add_argument('-l', type=int, default=40,
+                    help='number of lines to print in the qstat summary')
 args = vars(parser.parse_args())
 
 # process qstat
 while True:
-    subprocess.call(['clear'])
+    try:
+        subprocess.call(['clear'])
 
-    # get qstat output
-    qstat = subprocess.check_output(['qstat'])
+        # get qstat output
+        qstat = subprocess.check_output(['qstat'])
 
-    # filter relevant lines of qstat
-    qstat_lines = [ line.split() for line in 
-                    qstat.splitlines() if USER in line ]
-    
-    # get number of running/queued jobs
-    njobs = dict()
-    for status in "r", "qw":
-        njobs[status] = len([ col for col in qstat_lines if 
-                            status in col[STATUS_COLUMN] ])
+        # filter relevant lines of qstat
+        qstat_lines = [ line.split() for line in
+                        qstat.splitlines() if USER in line ]
 
-    # take job arrays into account
-    # TODO
+        # get number of running/queued jobs
+        njobs = dict()
+        for status in "r", "qw":
+            njobs[status] = len([ col for col in qstat_lines if
+                                status in col[STATUS_COLUMN] ])
 
-    njobs["total"] = len(qstat_lines)
+        # take job arrays into account
+        # TODO
 
-    # get current timestamp
-    date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
-    print date
+        njobs["total"] = len(qstat_lines)
 
-    # output
-    print """
-        SGE summary:
-        ============
-            Total number of submitted jobs: {total}
-            Total number of running jobs:   {r}
-            Total number of queued jobs:    {qw}
+        # get current timestamp
+        date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
+        print date
 
-    """.format(**njobs)
+        # output
+        print """
+            SGE summary:
+            ============
+                Total number of submitted jobs: {total}
+                Total number of running jobs:   {r}
+                Total number of queued jobs:    {qw}
 
-    print qstat
+        """.format(**njobs)
 
-    time.sleep(args.get('n'))
+        # mimick the bash-builtin 'head'
+        NLINES = args.get('l')
+        for line in qstat.splitlines()[:NLINES]:
+            print line
+
+        time.sleep(args.get('n'))
+    except KeyboardInterrupt:
+        sys.exit()
