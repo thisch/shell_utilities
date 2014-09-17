@@ -13,6 +13,7 @@ optional arguments:
 """
 
 import os
+import re
 import subprocess
 import sys
 
@@ -24,6 +25,8 @@ import time
 USER = os.getlogin()
 # column in qstat output to read status from
 STATUS_COLUMN = 4
+# column in qstat output to read job-array status from
+JA_COLUMN = 8
 
 # get command-line arguments
 parser = argparse.ArgumentParser()
@@ -47,26 +50,37 @@ while True:
 
         # get number of running/queued jobs
         njobs = dict()
-        for status in "r", "qw":
-            njobs[status] = len([ col for col in qstat_lines if
-                                status in col[STATUS_COLUMN] ])
 
-        # take job arrays into account
-        # TODO
+        # initialize job count for running (r), queued (qw) jobs and
+        # jobarrays (ja)
+        for status in "r", "qw", "ja":
+            njobs[status] = 0
 
-        njobs["total"] = len(qstat_lines)
+        regex = re.compile("[-:]")
+        for col in qstat_lines:
+            if col[STATUS_COLUMN] == "r":
+                njobs["r"] += 1
+            if col[STATUS_COLUMN] == "qw":
+                if ":" not in col[JA_COLUMN]:
+                    njobs["qw"] += 1
+                else:
+                    ja_range = map(int, regex.split(col[-1]))
+                    njobs["ja"] += len(range(*ja_range)) + 1
+
+        # calculate totals
+        njobs["total"] = njobs.get("r") + njobs.get("qw") + njobs.get("ja")
+        njobs["qw_total"] = njobs.get("qw") + njobs.get("ja")
 
         # get current timestamp
         date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
         print date
 
-        # output
         print """
             SGE summary:
             ============
                 Total number of submitted jobs: {total}
                 Total number of running jobs:   {r}
-                Total number of queued jobs:    {qw}
+                Total number of queued jobs:    {qw_total}
 
         """.format(**njobs)
 
