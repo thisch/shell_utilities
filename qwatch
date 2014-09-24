@@ -61,11 +61,14 @@ while True:
             if col[STATUS_COLUMN] == "r":
                 njobs["r"] += 1
             if col[STATUS_COLUMN] == "qw":
-                if ":" not in col[JA_COLUMN]:
-                    njobs["qw"] += 1
-                else:
-                    ja_range = map(int, regex.split(col[-1]))
-                    njobs["ja"] += len(range(*ja_range)) + 1
+                try:
+                    if ":" not in col[JA_COLUMN]:
+                        njobs["qw"] += 1
+                    else:
+                        ja_range = map(int, regex.split(col[-1]))
+                        njobs["ja"] += len(range(*ja_range)) + 1
+                except IndexError:
+                    njobs["ja"] += 0
 
         # calculate totals
         njobs["total"] = njobs.get("r") + njobs.get("qw") + njobs.get("ja")
