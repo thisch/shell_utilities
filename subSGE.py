@@ -114,16 +114,16 @@ if params.get("cluster"):
     """.format(**params)
 
     if params.get("executable") == "solve_xml_mumps":
-        CMD = """
+        EXECUTABLE = """
             time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
         """.format(**params)
     else:
-        CMD = """
+        EXECUTABLE = """
             export PYTHONUNBUFFERED=1
             time {executable}
         """.format(**params)
 
-    SGE_INPUT = SGE_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + CMD
+    SGE_INPUT = SGE_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
     # remove leading whitespace
     SGE_INPUT = textwrap.dedent(SGE_INPUT)
