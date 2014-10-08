@@ -25,8 +25,6 @@ import time
 USER = os.getlogin()
 # column in qstat output to read status from
 STATUS_COLUMN = 4
-# column in qstat output to read job-array status from
-JA_COLUMN = 8
 
 # get command-line arguments
 parser = argparse.ArgumentParser()
@@ -43,6 +41,8 @@ while True:
 
         # get qstat output
         qstat = subprocess.check_output(['qstat'])
+        # column in qstat output to read job-array status from
+        JA_COLUMN = qstat.split().index('ja-task-ID')
 
         # filter relevant lines of qstat
         qstat_lines = [ line.split() for line in
