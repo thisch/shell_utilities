@@ -42,7 +42,10 @@ while True:
         # get qstat output
         qstat = subprocess.check_output(['qstat'])
         # column in qstat output to read job-array status from
-        JA_COLUMN = qstat.split().index('ja-task-ID')
+        try:
+            JA_COLUMN = qstat.split().index('ja-task-ID')
+        except:
+            pass
 
         # filter relevant lines of qstat
         qstat_lines = [ line.split() for line in
