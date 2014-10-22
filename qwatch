@@ -25,8 +25,6 @@ import time
 USER = os.getlogin()
 # column in qstat output to read status from
 STATUS_COLUMN = 4
-# column in qstat output to read job-array status from
-JA_COLUMN = 8
 
 # get command-line arguments
 parser = argparse.ArgumentParser()
@@ -43,6 +41,11 @@ while True:
 
         # get qstat output
         qstat = subprocess.check_output(['qstat'])
+        # column in qstat output to read job-array status from
+        try:
+            JA_COLUMN = qstat.split().index('ja-task-ID')
+        except:
+            pass
 
         # filter relevant lines of qstat
         qstat_lines = [ line.split() for line in
@@ -61,14 +64,14 @@ while True:
             if col[STATUS_COLUMN] == "r":
                 njobs["r"] += 1
             if col[STATUS_COLUMN] == "qw":
+                njobs["qw"] += 1
                 try:
-                    if ":" not in col[JA_COLUMN]:
-                        njobs["qw"] += 1
-                    else:
+                    if ":" in col[JA_COLUMN-1]:
                         ja_range = map(int, regex.split(col[-1]))
                         njobs["ja"] += len(range(*ja_range)) + 1
+                        njobs["qw"] -= 1
                 except IndexError:
-                    njobs["ja"] += 0
+                    pass
 
         # calculate totals
         njobs["total"] = njobs.get("r") + njobs.get("qw") + njobs.get("ja")
