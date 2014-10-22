@@ -24,13 +24,14 @@ optional arguments:
 """
 
 import argparse
+from argparse import ArgumentDefaultsHelpFormatter as help_formatter
 import subprocess
 import textwrap
 import sys
 
 
 ### parse command-line arguments
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(formatter_class=help_formatter)
 
 parser.add_argument("-w", "--walltime", nargs="?", default=30, type=int,
                     help="Maximum job runtime (in minutes)")
@@ -45,7 +46,7 @@ parser.add_argument("-i", "--input-xml", default="input.xml",
 parser.add_argument("-a", "--jobarray", nargs="+", type=str,
                     help="Submit job array to cluster")
 parser.add_argument("-d", "--dryrun", action="store_true",
-                    help="Write submit file and exit.")
+                    help="Write submit file and exit")
 
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument("-c", "--cluster", action="store_true",
