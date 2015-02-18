@@ -3,7 +3,7 @@
 # (add to crontab via 'crontab -e')
 
 SRC="~"
-DEST="$HOME/VSC_Backup"
+DEST="$HOME/VSC_backup"
 OLD="$DEST/deleted_files"
 
 DATE=$(date "+%Y_%m_%d-%H:%M:%S")
