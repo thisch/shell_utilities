@@ -37,8 +37,8 @@ parser.add_argument("-w", "--walltime", nargs="?", default=30, type=int,
                     help="maximum job runtime (in minutes)")
 parser.add_argument("-N", "--name", default="SLURM_job", type=str,
                     help="SLURM job name")
-parser.add_argument("-n", "--nnodes", nargs="?", default=8, type=int,
-                    help="number of nodes on cluster")
+parser.add_argument("-n", "--nnodes", nargs="?", default=16, type=int,
+                    help="number of nodes to allocate")
 parser.add_argument("-e", "--executable", default="solve_xml_mumps",
                     type=str, help="executable for job submission")
 parser.add_argument("-i", "--input-xml", default="input.xml",
@@ -105,7 +105,7 @@ if params.get("cluster"):
         TMP_FILE = ""
 
     SLURM_OPTIONS = """
-            #!/bin/bash -l
+            #!/bin/bash
             #SBATCH --job-name={name}
             #SBATCH --time=00:{walltime}:00
             #SBATCH -N {nnodes}
@@ -115,6 +115,7 @@ if params.get("cluster"):
 
     if params.get("executable") == "solve_xml_mumps":
         EXECUTABLE = """
+            unset I_MPI_PIN_PROCESSOR_LIST
             time mpirun -machinefile $TMPDIR/machines -np $NSLOTS {executable} -i {input_xml}
         """.format(**params)
     else:
