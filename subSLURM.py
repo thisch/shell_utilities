@@ -53,7 +53,6 @@ parser.add_argument("-d", "--dryrun", action="store_true",
 
 params = vars(parser.parse_args())
 
-
 ### print options
 print """
     Options:
