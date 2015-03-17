@@ -3,7 +3,7 @@
 
 usage: subSLURM.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-t [NTASKS]]
                    [-e EXECUTABLE] [-i INPUT_XML] [-a JOBARRAY [JOBARRAY ...]]
-                   [-d] [-q | -l]
+                   [-d]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -22,8 +22,6 @@ optional arguments:
   -a JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                         submit job array to queue (default: None)
   -d, --dryrun          write submit file and exit (default: False)
-  -q, --queue           submit job to queue (default: False)
-  -l, --local           run job on local node (default: False)
 """
 
 import argparse
@@ -53,12 +51,6 @@ parser.add_argument("-a", "--jobarray", nargs="+", type=str,
 parser.add_argument("-d", "--dryrun", action="store_true",
                     help="write submit file and exit")
 
-mode = parser.add_mutually_exclusive_group()
-mode.add_argument("-q", "--queue", action="store_true",
-                  help="submit job to queue")
-mode.add_argument("-l", "--local", action="store_true",
-                  help="run job on local node")
-
 params = vars(parser.parse_args())
 
 
@@ -67,8 +59,6 @@ print """
     Options:
 
         Job name:               {name}
-        Run on local node:      {local}
-        Run on cluster:         {queue}
         Maximum job runtime:    {walltime} minutes
         Number of nodes:        {nnodes}
         Executable file:        {executable}
@@ -78,72 +68,67 @@ print """
 """.format(**params)
 
 ### process parameters
-if params.get("local"):
-    cmd = ("time {executable}").format(**params)
-    subprocess.call(cmd.split())
+joblist = params.get("jobarray")
+if joblist:
+    NJOBS = len(joblist)
+    DIRS = " ".join(joblist)
 
-if params.get("queue"):
-    joblist = params.get("jobarray")
-    if joblist:
-        NJOBS = len(joblist)
-        DIRS = " ".join(joblist)
+    JOBARRAY_SETTINGS = """
+        #SBATCH --array 1-{0}
 
-        JOBARRAY_SETTINGS = """
-            #SBATCH --array 1-{0}
+        JOB_DIRS=({1})
+        INDEX=$((${{SLURM_ARRAY_TASK_ID}} - 1))
+        cd ${{JOB_DIRS[${{INDEX}}]}}
+    """.format(NJOBS, DIRS)
+else:
+    JOBARRAY_SETTINGS = ""
 
-            JOB_DIRS=({1})
-            INDEX=$((${{SLURM_ARRAY_TASK_ID}} - 1))
-            cd ${{JOB_DIRS[${{INDEX}}]}}
-        """.format(NJOBS, DIRS)
-    else:
-        JOBARRAY_SETTINGS = ""
+if not JOBARRAY_SETTINGS:
+    TMP_FILE = """
+        #SBATCH --output="tmp.out"
+        #SBATCH --error="tmp.out"
+    """
+else:
+    TMP_FILE = ""
 
-    if not JOBARRAY_SETTINGS:
-        TMP_FILE = """
-            #SBATCH --output="tmp.out"
-            #SBATCH --error="tmp.out"
-        """
-    else:
-        TMP_FILE = ""
+SLURM_OPTIONS = """
+        #!/bin/bash
 
-    SLURM_OPTIONS = """
-            #!/bin/bash
+        #SBATCH --job-name={name}
+        #SBATCH --time=00:{walltime}:00
+        #SBATCH --nodes {nnodes}
+        #SBATCH --ntasks-per-node={ntasks}
+""".format(**params)
+SLURM_OPTIONS = SLURM_OPTIONS[1:]
 
-            #SBATCH --job-name={name}
-            #SBATCH --time=00:{walltime}:00
-            #SBATCH --nodes {nnodes}
-            #SBATCH --ntasks-per-node={ntasks}
+if params.get("executable") == "solve_xml_mumps":
+    EXECUTABLE = """
+        unset I_MPI_PIN_PROCESSOR_LIST
+        time mpirun -np $SLURM_NTASKS {executable} -i {input_xml}
     """.format(**params)
-    SLURM_OPTIONS = SLURM_OPTIONS[1:]
+else:
+    EXECUTABLE = """
+        export PYTHONUNBUFFERED=1
+        time {executable}
+    """.format(**params)
 
-    if params.get("executable") == "solve_xml_mumps":
-        EXECUTABLE = """
-            unset I_MPI_PIN_PROCESSOR_LIST
-            time mpirun -np $SLURM_NTASKS {executable} -i {input_xml}
-        """.format(**params)
-    else:
-        EXECUTABLE = """
-            export PYTHONUNBUFFERED=1
-            time {executable}
-        """.format(**params)
+SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
-    SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
+# remove leading whitespace
+SLURM_INPUT = textwrap.dedent(SLURM_INPUT)
 
-    # remove leading whitespace
-    SLURM_INPUT = textwrap.dedent(SLURM_INPUT)
+# print SLURM input file
+with open("SLURM_INPUT.sh", "w") as f:
+    f.write(SLURM_INPUT)
+    print
+    print "SLURM settings:"
+    print SLURM_INPUT
 
-    # print SLURM input file
-    with open("SLURM_INPUT.sh", "w") as f:
-        f.write(SLURM_INPUT)
-        print
-        print "SLURM settings:"
-        print SLURM_INPUT
+if params.get("dryrun"):
+    sys.exit()
 
-    if params.get("dryrun"):
-        sys.exit()
+# open a pipe to the qsub command
+qsub = subprocess.Popen(["sbatch"], stdin=subprocess.PIPE)
 
-    # open a pipe to the qsub command
-    qsub = subprocess.Popen(["sbatch"], stdin=subprocess.PIPE)
-
-    # send SLURM_INPUT to qsub
-    qsub.communicate(SLURM_INPUT)
+# send SLURM_INPUT to qsub
+qsub.communicate(SLURM_INPUT)
