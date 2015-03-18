@@ -126,8 +126,8 @@ with open("SLURM_INPUT.sh", "w") as f:
 if params.get("dryrun"):
     sys.exit()
 
-# open a pipe to the qsub command
-qsub = subprocess.Popen(["sbatch"], stdin=subprocess.PIPE)
+# open a pipe to the sbatch command
+sbatch = subprocess.Popen(["sbatch"], stdin=subprocess.PIPE)
 
-# send SLURM_INPUT to qsub
-qsub.communicate(SLURM_INPUT)
+# send SLURM_INPUT to sbatch
+sbatch.communicate(SLURM_INPUT)
