@@ -54,11 +54,15 @@ def remove_except(files=None, force=False, recursive=False):
     # add calling script to files which should be left untouched
     script = os.path.basename(sys.argv[0])
     if os.path.isfile(script):
-        args.append(script)
+        files.append(script)
 
     # fill list of files to be deleted
     del_list = []
     all_files = sorted(glob.glob("*"))
+
+    # sanitize file lists (remove trailing "/")
+    all_files = [ os.path.normpath(p) for p in all_files ]
+    files = [ os.path.normpath(p) for p in files ]
 
     for file in all_files:
         if file not in files:
@@ -101,7 +105,7 @@ if __name__ == '__main__':
     description = ("Remove all but a set of given files/directories in "
                    "the current directory.")
 
-    parser = argparse.ArgumentParser(description=description, 
+    parser = argparse.ArgumentParser(description=description,
                                      formatter_class=help_formatter)
     parser.add_argument("files", nargs="+",
                         help="Files to leave untouched.")
