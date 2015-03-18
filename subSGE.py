@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 """Submit a job to the Sun Grid Engine (SGE).
 
-usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-e EXECUTABLE]
+usage: subSGE.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NCORES]] [-e EXECUTABLE]
                  [-i INPUT_XML] [-a JOBARRAY [JOBARRAY ...]] [-d]
 
 optional arguments:
@@ -9,7 +9,7 @@ optional arguments:
     -w [WALLTIME], --walltime [WALLTIME]
                             maximum job runtime (in minutes)
     -N NAME, --name NAME  SGE job name
-    -n [NNODES], --nnodes [NNODES]
+    -n [NCORES], --ncores [NCORES]
                             number of cores on cluster
     -e EXECUTABLE, --executable EXECUTABLE
                             executable for job submission
@@ -92,7 +92,7 @@ SGE_OPTIONS = """
         #$ -V
         #$ -N {name}
         #$ -j y
-        #$ -pe mpich {nnodes}
+        #$ -pe mpich {ncores}
         #$ -l h_rt=00:{walltime}:00
 """.format(**params)
 
