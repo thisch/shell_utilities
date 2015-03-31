@@ -40,7 +40,7 @@ while True:
         subprocess.call(['clear'])
 
         # get qstat output
-        qstat = subprocess.check_output('qstat -r'.split())
+        qstat = subprocess.check_output("squeue -u {} -r".format(USER).split())
 
         # filter relevant lines of qstat
         qstat_lines = [ line.split() for line in
@@ -68,8 +68,8 @@ while True:
         print date
 
         print """
-            SGE summary:
-            ============
+            SLURM summary:
+            ==============
                 Total number of submitted jobs: {total}
                 Total number of running jobs:   {R}
                 Total number of queued jobs:    {PD}
