@@ -1,0 +1,86 @@
+#!/usr/bin/env python2.7
+"""Monitor the jobs submitted to the SLURM workload manager.
+
+Returns some statistics for the SLURM command 'squeue': the number of queued
+and running jobs, as well as the total number of submitted jobs.
+
+usage: swatch [-h] [-n N] [-l L]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -n N        update interval (seconds)
+  -l L        number of lines to print in the qstat summary
+"""
+
+import os
+import re
+import subprocess
+import sys
+
+import argparse
+import time
+
+
+# get $USER
+USER = os.getlogin()
+# column in qstat output to read status from
+STATUS_COLUMN = 4
+
+# get command-line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-n', type=float, default=5,
+                    help='update interval (seconds)')
+parser.add_argument('-l', type=int, default=40,
+                    help='number of lines to print in the qstat summary')
+args = vars(parser.parse_args())
+
+# process qstat
+while True:
+    try:
+        subprocess.call(['clear'])
+
+        # get qstat output
+        qstat = subprocess.check_output('qstat -r'.split())
+
+        # filter relevant lines of qstat
+        qstat_lines = [ line.split() for line in
+                        qstat.splitlines() if USER in line ]
+
+        # get number of running/queued jobs
+        njobs = dict()
+
+        # initialize job count for running (R) and pending (PD) jobs
+        for status in "R", "PD":
+            njobs[status] = 0
+
+        regex = re.compile("[-:]")
+        for col in qstat_lines:
+            if col[STATUS_COLUMN] == "R":
+                njobs["R"] += 1
+            if col[STATUS_COLUMN] == "PD":
+                njobs["PD"] += 1
+
+        # calculate totals
+        njobs["total"] = njobs.get("R") + njobs.get("PD")
+
+        # get current timestamp
+        date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
+        print date
+
+        print """
+            SGE summary:
+            ============
+                Total number of submitted jobs: {total}
+                Total number of running jobs:   {R}
+                Total number of queued jobs:    {PD}
+
+        """.format(**njobs)
+
+        # mimick the bash-builtin 'head'
+        NLINES = args.get('l')
+        for line in qstat.splitlines()[:NLINES]:
+            print line
+
+        time.sleep(args.get('n'))
+    except KeyboardInterrupt:
+        sys.exit()
