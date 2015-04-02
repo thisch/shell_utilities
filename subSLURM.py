@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Submit a job to the Slurm Workload Manager.
+"""Submit a job to the SLURM Workload Manager.
 
 usage: subSLURM.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-t [NTASKS]]
                    [-e EXECUTABLE] [-i INPUT_XML] [-a JOBARRAY [JOBARRAY ...]]
