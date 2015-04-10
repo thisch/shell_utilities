@@ -3,7 +3,6 @@
 # Usage: convert.sh FILE1.jpg FILE2.jpg ...
 
 for i in "$@"; do
-    DEST=$(basename $i .jpg)
-    convert -fuzz 25% -transparent white -trim $i $i
-    convert -resize 700x70! $i ${DEST}{,_resize}.jpg
+    BASE=$(basename $i .jpg)
+    convert ${BASE}.jpg -fuzz 15% -transparent white -trim -resize 700x70! ${BASE}_resize.png
 done
