@@ -4,5 +4,5 @@
 
 for i in "$@"; do
     BASE=$(basename $i .jpg)
-    convert ${BASE}.jpg -fuzz 15% -transparent white -trim -resize 700x70! ${BASE}_resize.png
+    convert ${BASE}.jpg -fuzz 15% -transparent white -trim -resize 700x70! -quality 99 ${BASE}_resize.png
 done
