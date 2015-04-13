@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """Monitor the jobs submitted to the SLURM workload manager.
 
 Returns some statistics for the SLURM command 'squeue': the number of queued
@@ -11,6 +11,7 @@ optional arguments:
   -n N        update interval (seconds)
   -l L        number of lines to print in the squeue summary
 """
+from __future__ import print_function
 
 import os
 import re
@@ -37,17 +38,18 @@ args = vars(parser.parse_args())
 # process squeue
 while True:
     try:
+        # clear screen
         subprocess.call(['clear'])
 
         # get squeue output
-        squeue = subprocess.check_output("squeue -u {} -r".format(USER).split())
+        squeue = subprocess.check_output(['squeue', '-u', USER, '-r'])
 
         # filter relevant lines of squeue
-        squeue_lines = [ line.split() for line in
-                        squeue.splitlines() if USER in line ]
+        squeue_lines = [line.split() for line in
+                        squeue.decode('utf8').splitlines() if USER in line]
 
         # get number of running/queued jobs
-        njobs = dict()
+        njobs = {}
 
         # initialize job count for running (R) and pending (PD) jobs
         for status in "R", "PD":
@@ -55,36 +57,35 @@ while True:
 
         regex = re.compile("[-:]")
         for col in squeue_lines:
-            if col[STATUS_COLUMN] == "R":
-                njobs["R"] += 1
-            if col[STATUS_COLUMN] == "PD":
-                njobs["PD"] += 1
+            for cname in ['R', 'PD']:
+                if col[STATUS_COLUMN] == cname:
+                    njobs[cname] += 1
 
         # calculate totals
         njobs["total"] = njobs.get("R") + njobs.get("PD")
 
         # get current timestamp
         date = time.strftime("%a %b %d %H:%M:%S %Z %Y")
-        print date
+        print(date)
 
-        print """
+        print("""
             SLURM summary:
             ==============
                 Total number of submitted jobs: {total}
                 Total number of running jobs:   {R}
                 Total number of queued jobs:    {PD}
 
-        """.format(**njobs)
+        """.format(**njobs))
 
         # get compressed squeue output & filter relevant lines
         squeue = subprocess.check_output("squeue -u {}".format(USER).split())
-        squeue_lines = [ line.split() for line in
-                        squeue.splitlines() if USER in line ]
+        squeue_lines = [line.split() for line in
+                        squeue.decode('utf8').splitlines() if USER in line]
 
         # mimick the bash-builtin 'head'
         NLINES = args.get('l')
         for line in squeue.splitlines()[:NLINES]:
-            print line
+            print(line.decode('utf8'))
 
         time.sleep(args.get('n'))
     except KeyboardInterrupt:
