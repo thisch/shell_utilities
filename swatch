@@ -42,7 +42,7 @@ while True:
         subprocess.call(['clear'])
 
         # get squeue output
-        squeue = subprocess.check_output(['squeue', '-u', USER, '-r'])
+        squeue = subprocess.check_output(['squeue', '-u', USER])
 
         # filter relevant lines of squeue
         squeue_lines = [line.split() for line in
