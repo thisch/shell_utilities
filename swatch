@@ -71,9 +71,9 @@ while True:
         print("""
             SLURM summary:
             ==============
-                Total number of submitted jobs: {total}
-                Total number of running jobs:   {R}
-                Total number of queued jobs:    {PD}
+                Number of submitted jobs:     {total}
+                Number of running jobs (R):   {R}
+                Number of pending jobs (PD):  {PD}
 
         """.format(**njobs))
 
