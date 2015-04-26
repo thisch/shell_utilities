@@ -22,6 +22,7 @@ optional arguments:
   -a JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                         submit job array to queue (default: None)
   -d, --dryrun          write submit file and exit (default: False)
+  -p, --tmp             write output and error to tmp.out instead of slurm-SLURM-ID.out (default: False)
 """
 
 import argparse
