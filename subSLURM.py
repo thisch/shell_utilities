@@ -50,6 +50,8 @@ parser.add_argument("-a", "--jobarray", nargs="+", type=str,
                     help="submit job array to queue")
 parser.add_argument("-d", "--dryrun", action="store_true",
                     help="write submit file and exit")
+parser.add_argument("-p", "--tmp", action="store_true",
+                    help="write output and error to tmp.out instead of slurm-SLURM-ID.out")
 
 params = vars(parser.parse_args())
 
@@ -82,7 +84,7 @@ if joblist:
 else:
     JOBARRAY_SETTINGS = ""
 
-if not JOBARRAY_SETTINGS:
+if params.get("tmp"):
     TMP_FILE = """
         #SBATCH --output="tmp.out"
         #SBATCH --error="tmp.out"
