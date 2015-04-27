@@ -17,19 +17,19 @@ optional arguments:
   -e EXECUTABLE, --executable EXECUTABLE
                         executable for job submission (default:
                         solve_xml_mumps)
-  -i INPUT_XML, --input-xml INPUT_XML
-                        input file for executable (default: input.xml)
   -a JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                         submit job array to queue (default: None)
   -d, --dryrun          write submit file and exit (default: False)
-  -p, --tmp             write output and error to tmp.out instead of slurm-SLURM-ID.out (default: False)
+  -p TMP, --tmp TMP     write output and error to TMP file instead to slurm-
+                        SLURM-ID.out (default: None)
+  -s, --silent          suppress output to stdout (default: False)
 """
 
 import argparse
 from argparse import ArgumentDefaultsHelpFormatter as help_formatter
 import subprocess
-import textwrap
 import sys
+import textwrap
 
 
 ### parse command-line arguments
@@ -45,29 +45,31 @@ parser.add_argument("-t", "--ntasks", nargs="?", default=16, type=int,
                     help="number of tasks per node")
 parser.add_argument("-e", "--executable", default="solve_xml_mumps",
                     type=str, help="executable for job submission")
-parser.add_argument("-i", "--input-xml", default="input.xml",
-                    type=str, help="input file for executable")
 parser.add_argument("-a", "--jobarray", nargs="+", type=str,
                     help="submit job array to queue")
 parser.add_argument("-d", "--dryrun", action="store_true",
                     help="write submit file and exit")
-parser.add_argument("-p", "--tmp", action="store_true",
-                    help="write output and error to tmp.out instead of slurm-SLURM-ID.out")
+parser.add_argument("-p", "--tmp", type=str,
+                    help=("write output and error to TMP file instead to "
+                          "slurm-SLURM-ID.out"))
+parser.add_argument("-s", "--silent", action="store_true",
+                    help="suppress output to stdout")
 
 params = vars(parser.parse_args())
 
 ### print options
-print """
-    Options:
+if not params.get("silent"):
+    print """
+        Options:
 
-        Job name:               {name}
-        Maximum job runtime:    {walltime} minutes
-        Number of nodes:        {nnodes}
-        Executable file:        {executable}
-        Input xml file:         {input_xml}
-        Job array directories:  {jobarray}
+            Job name:               {name}
+            Maximum job runtime:    {walltime} minutes
+            Number of nodes:        {nnodes}
+            Executable file:        {executable}
+            Job array directories:  {jobarray}
+            Output files:           {tmp}
 
-""".format(**params)
+    """.format(**params)
 
 ### process parameters
 joblist = params.get("jobarray")
@@ -87,12 +89,13 @@ else:
 
 if params.get("tmp"):
     TMP_FILE = """
-        #SBATCH --output="tmp.out"
-        #SBATCH --error="tmp.out"
-    """
+        #SBATCH --output={tmp}
+        #SBATCH --error={tmp}
+    """.format(**params)
 else:
     TMP_FILE = ""
 
+### assemble SLURM options
 SLURM_OPTIONS = """
         #!/bin/bash
 
@@ -106,7 +109,7 @@ SLURM_OPTIONS = SLURM_OPTIONS[1:]
 if params.get("executable") == "solve_xml_mumps":
     EXECUTABLE = """
         unset I_MPI_PIN_PROCESSOR_LIST
-        time mpirun -np $SLURM_NTASKS {executable} -i {input_xml}
+        time mpirun -np $SLURM_NTASKS {executable}
     """.format(**params)
 else:
     EXECUTABLE = """
@@ -122,9 +125,10 @@ SLURM_INPUT = textwrap.dedent(SLURM_INPUT)
 # print SLURM input file
 with open("SLURM_INPUT.sh", "w") as f:
     f.write(SLURM_INPUT)
-    print
-    print "SLURM settings:"
-    print SLURM_INPUT
+    if not params.get("silent"):
+        print
+        print "SLURM settings:"
+        print SLURM_INPUT
 
 if params.get("dryrun"):
     sys.exit()
