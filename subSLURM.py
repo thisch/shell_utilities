@@ -17,6 +17,7 @@ optional arguments:
   -e EXECUTABLE, --executable EXECUTABLE
                         executable for job submission (default:
                         solve_xml_mumps)
+  --no-mpi              submit single-core job (default: False)
   -a JOBARRAY [JOBARRAY ...], --jobarray JOBARRAY [JOBARRAY ...]
                         submit job array to queue (default: None)
   -d, --dryrun          write submit file and exit (default: False)
@@ -45,6 +46,8 @@ parser.add_argument("-t", "--ntasks", nargs="?", default=16, type=int,
                     help="number of tasks per node")
 parser.add_argument("-e", "--executable", default="solve_xml_mumps",
                     type=str, help="executable for job submission")
+parser.add_argument("--no-mpi", action="store_true",
+                    help="submit single-core job")
 parser.add_argument("-a", "--jobarray", nargs="+", type=str,
                     help="submit job array to queue")
 parser.add_argument("-d", "--dryrun", action="store_true",
@@ -106,10 +109,15 @@ SLURM_OPTIONS = """
 """.format(**params)
 SLURM_OPTIONS = SLURM_OPTIONS[1:]
 
+if params.get("no_mpi"):
+    MPI = ""
+else:
+    MPI = "mpirun -np $SLURM_NTASKS"
+
 EXECUTABLE = """
-    unset I_MPI_PIN_PROCESSOR_LIST
-    time mpirun -np $SLURM_NTASKS {executable}
-""".format(**params)
+        unset I_MPI_PIN_PROCESSOR_LIST
+        time {MPI} {executable}
+""".format(MPI=MPI, **params)
 
 SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
