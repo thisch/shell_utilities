@@ -32,7 +32,7 @@ import sys
 import textwrap
 
 
-### parse command-line arguments
+# parse command-line arguments
 parser = argparse.ArgumentParser(formatter_class=help_formatter)
 
 parser.add_argument("-w", "--walltime", nargs="?", default=30, type=int,
@@ -57,7 +57,7 @@ parser.add_argument("-s", "--silent", action="store_true",
 
 params = vars(parser.parse_args())
 
-### print options
+# print options
 if not params.get("silent"):
     print """
         Options:
@@ -71,7 +71,7 @@ if not params.get("silent"):
 
     """.format(**params)
 
-### process parameters
+# process parameters
 joblist = params.get("jobarray")
 if joblist:
     NJOBS = len(joblist)
@@ -95,7 +95,7 @@ if params.get("tmp"):
 else:
     TMP_FILE = ""
 
-### assemble SLURM options
+# assemble SLURM options
 SLURM_OPTIONS = """
         #!/bin/bash
 
@@ -106,16 +106,10 @@ SLURM_OPTIONS = """
 """.format(**params)
 SLURM_OPTIONS = SLURM_OPTIONS[1:]
 
-if params.get("executable") == "solve_xml_mumps":
-    EXECUTABLE = """
-        unset I_MPI_PIN_PROCESSOR_LIST
-        time mpirun -np $SLURM_NTASKS {executable}
-    """.format(**params)
-else:
-    EXECUTABLE = """
-        export PYTHONUNBUFFERED=1
-        time {executable}
-    """.format(**params)
+EXECUTABLE = """
+    unset I_MPI_PIN_PROCESSOR_LIST
+    time mpirun -np $SLURM_NTASKS {executable}
+""".format(**params)
 
 SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
