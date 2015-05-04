@@ -57,6 +57,8 @@ parser.add_argument("-p", "--tmp", type=str,
                           "slurm-SLURM-ID.out"))
 parser.add_argument("-s", "--silent", action="store_true",
                     help="suppress output to stdout")
+parser.add_argument("-q", "--qos", type=str, default="normal_0064",
+                    help="specify quality of service (QOS)")
 
 params = vars(parser.parse_args())
 
@@ -71,6 +73,8 @@ if not params.get("silent"):
             Executable file:        {executable}
             Job array directories:  {jobarray}
             Output files:           {tmp}
+            Suppress stdout:        {silent}
+            Quality of Service:     {qos}
 
     """.format(**params)
 
@@ -106,6 +110,7 @@ SLURM_OPTIONS = """
         #SBATCH --time=00:{walltime}:00
         #SBATCH --nodes {nnodes}
         #SBATCH --ntasks-per-node={ntasks}
+        #SBATCH --qos={ntasks}
 """.format(**params)
 SLURM_OPTIONS = SLURM_OPTIONS[1:]
 
