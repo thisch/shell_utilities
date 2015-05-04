@@ -134,7 +134,7 @@ EXECUTABLE = """
 
 if joblist and not params.get('tmp'):
     EXECUTABLE = """
-        OUTPUT=$SLURM_SUBMIT_DIR/slurm-${{SLURM_JOB_ID}}_${{SLURM_ARRAY_TASK_ID}}.out
+        OUTPUT=$SLURM_SUBMIT_DIR/slurm-${{SLURM_ARRAY_JOB_ID}}_${{SLURM_ARRAY_TASK_ID}}.out
         ln -s $OUTPUT .
         {executable}
         unlink $(basename $OUTPUT)
