@@ -3,7 +3,7 @@
 
 usage: subSLURM.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-t [NTASKS]]
                    [-e EXECUTABLE] [--no-mpi] [-a JOBARRAY [JOBARRAY ...]]
-                   [-d] [-p TMP] [-s] [-p PARTITION] [-q QOS]
+                   [-d] [-p TMP] [-s] [-P PARTITION] [-q QOS]
 
 optional arguments:
   -h, --help            show this help message and exit
