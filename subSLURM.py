@@ -25,7 +25,7 @@ optional arguments:
                         SLURM-ID.out (default: None)
   -s, --silent          suppress output to stdout (default: False)
   -q QOS, --qos QOS     specify quality of service (QOS) (default:
-                        normal_0064)"""
+                        normal_0064)
 """
 
 import argparse
