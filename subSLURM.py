@@ -133,16 +133,15 @@ EXECUTABLE = """
 """.format(MPI=MPI, **params)
 
 if joblist and not params.get('tmp'):
-    SLURM_INPUT = """{0}
-{1}
-        ofile=$SLURM_SUBMIT_DIR/slurm-${{SLURM_JOB_ID}}_${{SLURM_ARRAY_TASK_ID}}.out
-        ln -s $ofile .
-{exe}
-        unlink $(basename $ofile)
-        mv $ofile .
-""".format(SLURM_OPTIONS, JOBARRAY_SETTINGS, exe=EXECUTABLE)
-else:
-    SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
+    EXECUTABLE = """
+        OUTPUT=$SLURM_SUBMIT_DIR/slurm-${{SLURM_JOB_ID}}_${{SLURM_ARRAY_TASK_ID}}.out
+        ln -s $OUTPUT .
+        {executable}
+        unlink $(basename $OUTPUT)
+        mv $OUTPUT .
+    """.format(executable=EXECUTABLE)
+
+SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
 # remove leading whitespace
 SLURM_INPUT = textwrap.dedent(SLURM_INPUT)
