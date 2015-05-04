@@ -132,6 +132,15 @@ EXECUTABLE = """
         time {MPI} {executable}
 """.format(MPI=MPI, **params)
 
+if joblist and not params.get('tmp'):
+    EXECUTABLE = """
+        OUTPUT=$SLURM_SUBMIT_DIR/slurm-${{SLURM_JOB_ID}}_${{SLURM_ARRAY_TASK_ID}}.out
+        ln -s $OUTPUT .
+        {executable}
+        unlink $(basename $OUTPUT)
+        mv $OUTPUT .
+    """.format(executable=EXECUTABLE)
+
 SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
 
 # remove leading whitespace
