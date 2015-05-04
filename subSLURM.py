@@ -64,7 +64,7 @@ params = vars(parser.parse_args())
 
 # print options
 if not params.get("silent"):
-    print """
+    print("""
         Options:
 
             Job name:               {name}
@@ -76,7 +76,7 @@ if not params.get("silent"):
             Suppress stdout:        {silent}
             Quality of Service:     {qos}
 
-    """.format(**params)
+    """.format(**params))
 
 # process parameters
 joblist = params.get("jobarray")
@@ -133,9 +133,7 @@ SLURM_INPUT = textwrap.dedent(SLURM_INPUT)
 with open("SLURM_INPUT.sh", "w") as f:
     f.write(SLURM_INPUT)
     if not params.get("silent"):
-        print
-        print "SLURM settings:"
-        print SLURM_INPUT
+        print("\nSLURM settings:\n" + SLURM_INPUT)
 
 if params.get("dryrun"):
     sys.exit()
@@ -144,4 +142,4 @@ if params.get("dryrun"):
 sbatch = subprocess.Popen(["sbatch"], stdin=subprocess.PIPE)
 
 # send SLURM_INPUT to sbatch
-sbatch.communicate(SLURM_INPUT)
+sbatch.communicate(SLURM_INPUT.encode('utf-8'))
