@@ -2,8 +2,8 @@
 """Submit a job to the SLURM Workload Manager.
 
 usage: subSLURM.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-t [NTASKS]]
-                   [-e EXECUTABLE] [-i INPUT_XML] [-a JOBARRAY [JOBARRAY ...]]
-                   [-d]
+                   [-e EXECUTABLE] [--no-mpi] [-a JOBARRAY [JOBARRAY ...]]
+                   [-d] [-p TMP] [-s] [-q QOS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -24,6 +24,8 @@ optional arguments:
   -p TMP, --tmp TMP     write output and error to TMP file instead to slurm-
                         SLURM-ID.out (default: None)
   -s, --silent          suppress output to stdout (default: False)
+  -q QOS, --qos QOS     specify quality of service (QOS) (default:
+                        normal_0064)"""
 """
 
 import argparse
