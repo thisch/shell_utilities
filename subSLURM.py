@@ -3,7 +3,7 @@
 
 usage: subSLURM.py [-h] [-w [WALLTIME]] [-N NAME] [-n [NNODES]] [-t [NTASKS]]
                    [-e EXECUTABLE] [--no-mpi] [-a JOBARRAY [JOBARRAY ...]]
-                   [-d] [-p TMP] [-s] [-q QOS]
+                   [-d] [-p TMP] [-s] [-p PARTITION] [-q QOS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -24,6 +24,8 @@ optional arguments:
   -p TMP, --tmp TMP     write output and error to TMP file instead to slurm-
                         SLURM-ID.out (default: None)
   -s, --silent          suppress output to stdout (default: False)
+  -P PARTITION, --partition PARTITION
+                        specify the partition (default: mem_0064)
   -q QOS, --qos QOS     specify quality of service (QOS) (default:
                         normal_0064)
 """
@@ -59,6 +61,8 @@ parser.add_argument("-p", "--tmp", type=str,
                           "slurm-SLURM-ID.out"))
 parser.add_argument("-s", "--silent", action="store_true",
                     help="suppress output to stdout")
+parser.add_argument("-P", "--partition", type=str, default="mem_0064",
+                    help="specify the partition")
 parser.add_argument("-q", "--qos", type=str, default="normal_0064",
                     help="specify quality of service (QOS)")
 
@@ -76,6 +80,7 @@ if not params.get("silent"):
             Job array directories:  {jobarray}
             Output files:           {tmp}
             Suppress stdout:        {silent}
+            Partition:              {partition}
             Quality of Service:     {qos}
 
     """.format(**params))
@@ -112,6 +117,7 @@ SLURM_OPTIONS = """
         #SBATCH --time=00:{walltime}:00
         #SBATCH --nodes {nnodes}
         #SBATCH --ntasks-per-node={ntasks}
+        #SBATCH --partition={partition}
         #SBATCH --qos={qos}
 """.format(**params)
 SLURM_OPTIONS = SLURM_OPTIONS[1:]
