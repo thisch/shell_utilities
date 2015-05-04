@@ -110,7 +110,7 @@ SLURM_OPTIONS = """
         #SBATCH --time=00:{walltime}:00
         #SBATCH --nodes {nnodes}
         #SBATCH --ntasks-per-node={ntasks}
-        #SBATCH --qos={ntasks}
+        #SBATCH --qos={qos}
 """.format(**params)
 SLURM_OPTIONS = SLURM_OPTIONS[1:]
 
