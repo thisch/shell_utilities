@@ -138,7 +138,8 @@ if joblist and not params.get('tmp'):
         ln -s $OUTPUT .
         {executable}
         unlink $(basename $OUTPUT)
-        mv $OUTPUT .
+        gzip $OUTPUT
+        mv $OUTPUT.gz .
     """.format(executable=EXECUTABLE)
 
 SLURM_INPUT = SLURM_OPTIONS + JOBARRAY_SETTINGS + TMP_FILE + EXECUTABLE
