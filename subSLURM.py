@@ -129,6 +129,8 @@ else:
 
 EXECUTABLE = """
         unset I_MPI_PIN_PROCESSOR_LIST
+        export I_MPI_PMI_LIBRARY=/cm/shared/apps/slurm/current/lib/libpmi.so
+
         time {MPI} {executable}
 """.format(MPI=MPI, **params)
 
