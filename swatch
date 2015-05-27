@@ -37,6 +37,8 @@ parser.add_argument('-l', type=int, default=(int(rows)-8),
                     help='number of lines to print in the squeue summary')
 args = vars(parser.parse_args())
 
+wspacere = re.compile('^[ ]{10,11}')
+
 # process squeue
 while True:
     try:
@@ -71,11 +73,11 @@ while True:
         print(date)
 
         print("""
-            SLURM summary:
-            ==============
-                Number of submitted jobs:     {total}
-                Number of running jobs (R):   {R}
-                Number of pending jobs (PD):  {PD}
+SLURM summary:
+==============
+    Number of submitted jobs:     {total}
+    Number of running jobs (R):   {R}
+    Number of pending jobs (PD):  {PD}
 
         """.format(**njobs))
 
@@ -87,7 +89,7 @@ while True:
         # mimick the bash-builtin 'head'
         NLINES = args.get('l')
         for line in squeue.splitlines()[:NLINES]:
-            print(line.decode('utf8'))
+            print(wspacere.sub('', line.decode('utf8')))
 
         time.sleep(args.get('n'))
     except KeyboardInterrupt:
